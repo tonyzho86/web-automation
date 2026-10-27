@@ -1,0 +1,41 @@
+[project]
+name = "web-automation"
+version = "0.1.0"
+description = "基于 Playwright + pytest 的 Web 自动化测试框架"
+requires-python = ">=3.11"
+dependencies = [
+    "playwright>=1.49",
+    "pytest>=8.3",
+    "pytest-playwright>=0.6",
+    "pytest-html>=4.1",
+    "allure-pytest>=2.13",
+    "python-dotenv>=1.0",
+]
+
+[tool.pytest.ini_options]
+# pythonpath 让 tests/ 里可以直接 from pages.xxx import，不用装包
+pythonpath = ["."]
+testpaths = ["tests"]
+
+addopts = [
+    "-v",
+    "--strict-markers",
+    # ---- 失败现场留证：截图 / 录像 / Trace 只在失败时保留 ----
+    "--screenshot=only-on-failure",
+    "--video=retain-on-failure",
+    "--tracing=retain-on-failure",
+    "--output=reports/artifacts",
+    # ---- 报告 ----
+    "--html=reports/report.html",
+    "--self-contained-html",
+    "--alluredir=reports/allure-results",
+    "--clean-alluredir",
+]
+
+markers = [
+    "smoke: 冒烟用例，改动后快速验证主流程",
+    "regression: 回归用例，覆盖较全但耗时较长",
+]
+
+[tool.uv]
+package = false

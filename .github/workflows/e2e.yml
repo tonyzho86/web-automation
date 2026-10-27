@@ -1,0 +1,75 @@
+name: Web E2E
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    # 每天 UTC 01:00（北京时间 09:00）跑一次，及早发现环境/数据变动
+    - cron: "0 1 * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 安装 uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: 安装依赖
+        run: uv sync
+
+      - name: 安装浏览器
+        run: uv run playwright install --with-deps chromium
+
+      - name: 运行测试
+        # 被测地址和账号不要在仓库里明文写死，用 Repository variables / secrets
+        # 在 GitHub 仓库 Settings → Secrets and variables → Actions 里配置
+        env:
+          BASE_URL: ${{ vars.BASE_URL || 'https://www.saucedemo.com' }}
+          STANDARD_USER: ${{ secrets.STANDARD_USER || 'standard_user' }}
+          PASSWORD: ${{ secrets.PASSWORD || 'secret_sauce' }}
+        run: uv run pytest --junitxml=reports/junit.xml
+
+      # ---- 以下步骤都加 if: always()，保证测试失败时证据照样归档 ----
+
+      - name: 上传失败现场（截图 / 录像 / Trace）
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-artifacts
+          path: reports/artifacts
+          retention-days: 7
+
+      - name: 上传 HTML 报告
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: html-report
+          path: reports/report.html
+          retention-days: 14
+
+      - name: 生成 Allure 报告
+        if: always()
+        uses: simple-elf/allure-report-action@master
+        with:
+          allure_results: reports/allure-results
+          allure_history: allure-history
+          keep_reports: 20
+
+      - name: 上传 Allure 报告
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report
+          path: allure-history
+          retention-days: 14

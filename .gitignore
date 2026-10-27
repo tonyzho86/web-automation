@@ -1,0 +1,20 @@
+# 运行产物
+reports/
+test-results/
+allure-results/
+allure-report/
+
+# 本地配置（含账号密码，绝对不要提交）
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
+# 编辑器
+.idea/
+.vscode/
+*.swp
