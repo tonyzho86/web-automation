@@ -58,18 +58,10 @@ jobs:
           path: reports/report.html
           retention-days: 14
 
-      - name: 生成 Allure 报告
-        if: always()
-        uses: simple-elf/allure-report-action@master
-        with:
-          allure_results: reports/allure-results
-          allure_history: allure-history
-          keep_reports: 20
-
-      - name: 上传 Allure 报告
+      - name: 上传 Allure 原始结果
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: allure-report
-          path: allure-history
+          name: allure-results
+          path: reports/allure-results
           retention-days: 14
