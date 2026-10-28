@@ -35,6 +35,17 @@ class CartPage(BasePage):
 
     # ---------- 读取状态 ----------
 
+    def expect_loaded(self) -> None:
+        """等待购物车页真正渲染完成。
+
+        为什么不能只等 URL:URL 在 SPA 路由切换的瞬间就变了,
+        但 DOM 还是上一个页面。此时 item_count() 是立即读取,
+        会数到商品列表页的 6 个元素 —— 这就是之前 CI 里 6 != 1 的原因。
+
+        Continue Shopping 按钮在空购物车里也存在,所以它是可靠的"页面就绪"信号。
+        """
+        expect(self.page.locator(self.CONTINUE_SHOPPING_BUTTON)).to_be_visible()
+
     def item_names(self) -> list[str]:
         return self.page.locator(self.ITEM_NAME).all_inner_texts()
 

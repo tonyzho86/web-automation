@@ -53,7 +53,10 @@ class InventoryPage(BasePage):
 
     def open_cart(self) -> CartPage:
         self.click(self.CART_LINK)
-        return CartPage(self.page)
+        cart = CartPage(self.page)
+        # 等页面渲染完成再返回:URL 先变、DOM 后渲染,不等就会读到上一个页面
+        cart.expect_loaded()
+        return cart
 
     # ---------- 读取状态 ----------
 

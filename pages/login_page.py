@@ -20,7 +20,7 @@ class LoginPage(BasePage):
     ERROR_MESSAGE = '[data-test="error"]'
 
     def open(self) -> "LoginPage":
-        self.page.goto(self.path)
+        self.page.goto(self.path, wait_until="domcontentloaded")
         return self
 
     # ---------- 业务动作 ----------

@@ -24,8 +24,13 @@ class BasePage:
     # ---------- 导航 ----------
 
     def open(self) -> "BasePage":
-        """打开当前页面，返回自身以支持链式调用。"""
-        self.page.goto(self.path)
+        """打开当前页面，返回自身以支持链式调用。
+
+        用 domcontentloaded 而不是默认的 load：
+        load 会等所有图片/字体加载完，网络慢时容易卡满 30 秒超时。
+        DOM 就绪即可，后续元素操作有 Playwright 的自动等待兜底。
+        """
+        self.page.goto(self.path, wait_until="domcontentloaded")
         return self
 
     @property
